@@ -1,0 +1,20 @@
+# LLM SDK (OpenAI-compatible — works with Groq)
+openai>=1.40.0
+
+# PDF Processing
+pypdf>=4.2.0
+
+# Embeddings & Vector Database
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+
+# Web / UI Framework
+streamlit>=1.36.0
+
+# Environment & Utilities
+python-dotenv>=1.0.1
+requests>=2.32.0
+rich>=13.7.0
+
+# Testing
+pytest>=8.2.0
