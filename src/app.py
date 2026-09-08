@@ -20,6 +20,18 @@ from src.vector_store import store_chunks, clear_collection
 from src.assistant import answer_with_rag
 from src.utils import format_preview, is_supported_file
 
+
+def markdown_to_html(text: str) -> str:
+    """
+    Converts the LLM's markdown-style output (bold, line breaks) into
+    HTML, since answers are injected into raw HTML via unsafe_allow_html
+    and won't render markdown syntax on their own.
+    """
+    import re
+    text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+    text = text.replace("\n", "<br>")
+    return text
+
 st.set_page_config(page_title="AI Knowledge Assistant | Hamna Munir", page_icon="🧠", layout="wide")
 
 # ---------------------------------------------------------------------------
@@ -273,13 +285,15 @@ with col_chat:
         sources_html = ""
         if entry.get("sources"):
             src_items = "".join(
-                f'<div style="margin-top:0.4rem;"><b>Chunk #{s["metadata"]["chunk_index"]}</b> '
-                f'(sim {s["similarity"]:.2f}) — {format_preview(s["text"], max_chars=120)}</div>'
+                f'<div style="margin-top:0.6rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.08);">'
+                f'<b>Chunk #{s["metadata"]["chunk_index"]}</b> (sim {s["similarity"]:.2f})<br>'
+                f'{format_preview(s["text"], max_chars=140)}</div>'
                 for s in entry["sources"]
             )
             sources_html = f'<div class="bubble-sources">📎 Retrieved chunks:{src_items}</div>'
 
-        st.markdown(f'<div class="bubble-row bot"><div class="bubble bot">{entry["answer"]}{sources_html}</div></div>', unsafe_allow_html=True)
+        answer_html = markdown_to_html(entry["answer"])
+        st.markdown(f'<div class="bubble-row bot"><div class="bubble bot">{answer_html}{sources_html}</div></div>', unsafe_allow_html=True)
 
     if st.session_state.indexed_doc is None:
         st.markdown('<div class="bubble-row bot"><div class="bubble bot">👋 Upload a document on the right to get started, then ask me anything about it.</div></div>', unsafe_allow_html=True)
